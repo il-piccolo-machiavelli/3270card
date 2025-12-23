@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBM 3270 Christmas Terminal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #000033;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'IBM Plex Mono', monospace;
+            padding: 20px;
+        }
+
+        .scene {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .desk {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .monitor {
+            background: linear-gradient(145deg, #d4cdb8 0%, #f5f0e5 50%, #c8c0a8 100%);
+            border-radius: 20px 20px 8px 8px;
+            padding: 30px;
+            box-shadow: 
+                -20px 30px 60px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .monitor::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: #ff4444;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.8);
+            animation: blink 2s infinite;
+        }
+
+        .screen {
+            background: #000000;
+            border: 5px solid #1a1a1a;
+            border-radius: 12px;
+            aspect-ratio: 4 / 3;
+            box-shadow: 
+                inset 0 0 150px rgba(0, 255, 255, 0.15),
+                inset 0 0 30px rgba(0, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+        }
+
+        /* 강한 스캔라인 효과 */
+        .screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.2) 0px,
+                    rgba(0, 0, 0, 0.2) 1px,
+                    transparent 1px,
+                    transparent 3px
+                );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* 비네팅 효과 */
+        .screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content {
+            color: #00FFFF;
+            text-shadow: 
+                0 0 8px #00FFFF,
+                0 0 15px #00FFFF,
+                0 0 25px #00FFFF;
+            position: relative;
+            z-index: 3;
+            animation: flicker 0.2s infinite alternate;
+            font-weight: 700;
+            letter-spacing: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .header-line {
+            opacity: 0;
+            animation: fadeIn 0.1s forwards;
+        }
+
+        .header-line:nth-child(1) { animation-delay: 0s; }
+        .header-line:nth-child(2) { animation-delay: 0.5s; }
+
+        .tree-container {
+            margin: 40px 0;
+            position: relative;
+            display: inline-block;
+            opacity: 0;
+            animation: fadeIn 0.1s forwards;
+            animation-delay: 1s;
+        }
+
+        .tree {
+            font-size: 20px;
+            line-height: 1.3;
+            text-align: left;
+            white-space: pre;
+            font-weight: 700;
+            position: relative;
+        }
+
+        /* CGA 색상 팔레트로 전구 효과 */
+        .light {
+            display: inline-block;
+            animation: twinkle 2s infinite;
+        }
+
+        .light-red {
+            color: #FF5555;
+            text-shadow: 0 0 10px #FF5555, 0 0 20px #FF5555;
+            animation-delay: 0s;
+        }
+
+        .light-green {
+            color: #55FF55;
+            text-shadow: 0 0 10px #55FF55, 0 0 20px #55FF55;
+            animation-delay: 0.3s;
+        }
+
+        .light-yellow {
+            color: #FFFF55;
+            text-shadow: 0 0 10px #FFFF55, 0 0 20px #FFFF55;
+            animation-delay: 0.6s;
+        }
+
+        .light-magenta {
+            color: #FF55FF;
+            text-shadow: 0 0 10px #FF55FF, 0 0 20px #FF55FF;
+            animation-delay: 0.9s;
+        }
+
+        .light-cyan {
+            color: #55FFFF;
+            text-shadow: 0 0 10px #55FFFF, 0 0 20px #55FFFF;
+            animation-delay: 1.2s;
+        }
+
+        .light-white {
+            color: #FFFFFF;
+            text-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF;
+            animation-delay: 1.5s;
+        }
+
+        .message {
+            font-size: 18px;
+            margin-top: 40px;
+            line-height: 1.6;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .message-line {
+            opacity: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #00FFFF;
+        }
+
+        .message-line:nth-child(1) {
+            animation: typing 1.5s steps(50) 1.5s forwards, blink-border 0.8s step-end 1.5s 2;
+        }
+
+        .message-line:nth-child(2) {
+            animation: typing 2s steps(50) 3.2s forwards, blink-border 0.8s step-end infinite;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 22px;
+            background: #00FFFF;
+            margin-left: 3px;
+            animation: blink-cursor 0.8s infinite;
+            box-shadow: 0 0 10px #00FFFF;
+        }
+
+        .monitor-stand {
+            width: 200px;
+            height: 50px;
+            background: linear-gradient(180deg, #c8c0a8 0%, #908870 100%);
+            margin: 0 auto;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .monitor-stand::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 20px;
+            background: linear-gradient(180deg, #908870 0%, #706858 100%);
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            50% { opacity: 0.97; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+
+        @keyframes blink-cursor {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes typing {
+            from { 
+                width: 0;
+                opacity: 1;
+            }
+            to { 
+                width: 100%;
+                opacity: 1;
+                border-right: none;
+            }
+        }
+
+        @keyframes blink-border {
+            50% { border-color: transparent; }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 768px) {
+            .monitor {
+                padding: 15px;
+            }
+            .screen {
+                padding: 25px;
+            }
+            .tree {
+                font-size: 16px;
+            }
+            .header, .message {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="desk">
+            <div class="monitor">
+                <div class="screen">
+                    <div class="content">
+                        <div class="header">
+                            <div class="header-line">TO: ALL_DEVS</div>
+                            <div class="header-line">FROM: CAFFEINEWORKS</div>
+                        </div>
+                        <div class="tree-container">
+                            <div class="tree" id="tree">       *
+      /^\
+     /*^*\
+    /^^*^^\
+   /*^*^*^*\
+  /^^*^^^*^^\
+ /*^*^*^*^*^*\
+/^^*^^^*^^^*^^\
+>>>>>>>***<<<<<
+      |||
+      |||</div>
+                        </div>
+                        <div class="message">
+                            <div class="message-line">MERRY XMAS!</div>
+                            <div class="message-line">MAY YOUR BUFFERS NEVER OVERFLOW!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="monitor-stand"></div>
+        </div>
+    </div>
+
+    <script>
+        const treeElement = document.getElementById('tree');
+        const treeHTML = treeElement.innerHTML;
+        
+        // CGA 색상 팔레트
+        const colors = ['red', 'green', 'yellow', 'magenta', 'cyan', 'white'];
+        
+        // 모든 *를 찾아서 랜덤 색상의 span으로 교체
+        let coloredTree = treeHTML;
+        let asteriskCount = 0;
+        
+        coloredTree = coloredTree.replace(/\*/g, () => {
+            const colorClass = colors[asteriskCount % colors.length];
+            asteriskCount++;
+            return `<span class="light light-${colorClass}">*</span>`;
+        });
+        
+        treeElement.innerHTML = coloredTree;
+    </script>
+</body>
+</html>
